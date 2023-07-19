@@ -1,5 +1,5 @@
 {
-	"path": "openshift/e2e/ibmcloud/heterogeneous/openshift-e2e-ibmcloud-upi-heterogeneous-workflow.yaml",
+	"path": "openshift/e2e/ibmcloud/heterogeneous/upi/openshift-e2e-ibmcloud-heterogeneous-upi-workflow.yaml",
 	"owners": {
 		"approvers": [
 			"werled",
