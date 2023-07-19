@@ -21,16 +21,6 @@ BASE_DOMAIN=$(<"${CLUSTER_PROFILE_DIR}/base_domain")
 
 echo "Cluster name and Base Domain is ${CLUSTER_NAME} ${BASE_DOMAIN}"
 
-if [[ "${CLUSTER_TYPE}" == *ocp-metal* ]]; then
-  SSHOPTS=(-o 'ConnectTimeout=5'
-    -o 'StrictHostKeyChecking=no'
-    -o 'UserKnownHostsFile=/dev/null'
-    -o 'ServerAliveInterval=90'
-    -o LogLevel=ERROR
-    -i "${CLUSTER_PROFILE_DIR}/ssh-key")
-  AUX_HOST="$(<"${CLUSTER_PROFILE_DIR}"/aux-host)"
-fi
-
 function approve_csrs() {
   while [[ ! -f '/tmp/scale-out-complete' ]]; do
     sleep 30
@@ -101,8 +91,7 @@ case "$CLUSTER_TYPE" in
       ic resource service-instance-create "${WORKSPACE_NAME}" "${SERVICE_NAME}" "${SERVICE_PLAN_NAME}" "${REGION}" -g "${RESOURCE_GROUP_NAME}"
 
       # After the workspace is created, invoke the automation code
-      cd ${IBMCLOUD_HOME_FOLDER}
-      git clone -b main https://github.com/IBM/ocp4-upi-compute-powervs.git
+      cd ${IBMCLOUD_HOME_FOLDER} && git clone -b main https://github.com/IBM/ocp4-upi-compute-powervs.git
 
       # Check if the terraform is of required version
 

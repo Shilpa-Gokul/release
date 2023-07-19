@@ -131,10 +131,13 @@ case $CLUSTER_TYPE in
        | .spec.template.spec.providerSpec.value.image.resourceID = \"${resource_id}\"" <<< "$MACHINE_SET")
 ;;
 *ibmcloud*)
+  FULL_CLUSTER_NAME=$(yq-v4 '.metadata.labels."machine.openshift.io/cluster-api-cluster"' <<< $MACHINE_SET)
+  REGION="${LEASED_RESOURCE}"
+  RESOURCE_GROUP=$(yq-v4 ".spec.template.spec.providerSpec.value.resourceGroup" <<< $MACHINE_SET)
+
   IBMCLOUD_HOME_FOLDER=/tmp/ibmcloud
-  SERVICE_NAME=power-iaas
-  SERVICE_PLAN_NAME=power-virtual-server-group
   mkdir -p ${IBMCLOUD_HOME_FOLDER}
+
   if [ -z "$(command -v ibmcloud)" ]; then
     echo "ibmcloud CLI doesn't exist, installing"
     curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
@@ -145,8 +148,8 @@ case $CLUSTER_TYPE in
   }
 
   ic version
-  ic login --apikey @${CLUSTER_PROFILE_DIR}/ibmcloud-api-key -r ${REGION}
-  ic plugin install -f cloud-internet-services vpc-infrastructure cloud-object-storage power-iaas
+  ic login --quiet --apikey @${CLUSTER_PROFILE_DIR}/ibmcloud-api-key -r ${REGION} -g ${RESOURCE_GROUP}
+  ic plugin install --quiet -f cloud-internet-services vpc-infrastructure cloud-object-storage
 
   case $ADDITIONAL_WORKER_ARCHITECTURE in
   s390x)
@@ -155,17 +158,17 @@ case $CLUSTER_TYPE in
   ;;
   x86_64 | amd64)
     OS_NAME=rhel-coreos-stable-amd64
+  ;;
   *)
     echo "Additional worker architecture \"${ADDITIONAL_WORKER_ARCHITECTURE}\" not supported for provider ibmcloud"
     exit 5
   esac
-  
-  RESOURCE_GROUP=$(yq-v4 ".spec.template.spec.providerSpec.value.resourceGroup" <<< $MACHINE_SET)
-  RHCOS_IMAGE_NAME=${RESOURCE_GROUP}-rhcos-${ADDITIONAL_WORKER_ARCHITECTURE}
+
+  RHCOS_IMAGE_NAME=${FULL_CLUSTER_NAME}-rhcos-${ADDITIONAL_WORKER_ARCHITECTURE}
   IMAGE_EXISTS=$(ic is images --output json | jq ".[] | select(.name == \"${RHCOS_IMAGE_NAME}\") | [ .name ] | length")
   if [ "${IMAGE_EXISTS}" != "1" ]; then
     echo "Image \"${RHCOS_IMAGE_NAME}\" does not exist, creating"
-    BUCKET_NAME=$RESOURCE_GROUP-vsi-image
+    BUCKET_NAME=${FULL_CLUSTER_NAME}-vsi-image
     RHCOS_IMAGE_URL=$(oc -n openshift-machine-config-operator get configmap/coreos-bootimages -oyaml | yq-v4 ".data.stream | eval(.).architectures.${ADDITIONAL_WORKER_ARCHITECTURE}.artifacts.ibmcloud.formats.[].disk.location")
     if [ -z $RHCOS_IMAGE_URL ]; then
       echo "Image location for architecture ${ADDITIONAL_WORKER_ARCHITECTURE} could not be found"
@@ -183,7 +186,7 @@ case $CLUSTER_TYPE in
     gunzip -f ${QCOW_GZ_FILE_LOCATION}
 
     echo "Uploading image to bucket ${BUCKET_NAME} under key ${QCOW_NAME}"
-    ic cos object-put --bucket ${BUCKET_NAME} --key ${QCOW_NAME} --body ${QCOW_FILE_LOCATION}
+    ic cos object-put --bucket ${BUCKET_NAME} --key ${QCOW_NAME} --body ${QCOW_FILE_LOCATION} --region ${REGION}
     COS_URL="cos://${REGION}/${BUCKET_NAME}/${QCOW_NAME}"
 
     echo "Creating image ${RHCOS_IMAGE_NAME} from ${COS_URL} with OS ${OS_NAME}"
