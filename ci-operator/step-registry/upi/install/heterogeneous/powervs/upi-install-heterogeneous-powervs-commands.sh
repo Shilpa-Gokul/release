@@ -87,8 +87,8 @@ case "$CLUSTER_TYPE" in
 
       # create workspace for power from cli
       echo "Display all the variable values"
-      echo "Region is ${REGION} Resource Group is ${RESOURCE_GROUP_NAME}" #TODO: rename to RESOURCE_GROUP
-      ic resource service-instance-create "${WORKSPACE_NAME}" "${SERVICE_NAME}" "${SERVICE_PLAN_NAME}" "${REGION}" -g "${RESOURCE_GROUP_NAME}"
+      echo "Region is ${REGION} Resource Group is ${RESOURCE_GROUP}" #TODO: rename to RESOURCE_GROUP
+      ic resource service-instance-create "${WORKSPACE_NAME}" "${SERVICE_NAME}" "${SERVICE_PLAN_NAME}" "${REGION}" -g "${RESOURCE_GROUP}"
 
       # After the workspace is created, invoke the automation code
       cd ${IBMCLOUD_HOME_FOLDER} && git clone -b main https://github.com/IBM/ocp4-upi-compute-powervs.git
