@@ -16,10 +16,16 @@ if [ "${ADDITIONAL_WORKERS_DAY2}" != "true" ]; then
 fi
 
 echo "Additional worker vm type is ${ADDITIONAL_WORKER_VM_TYPE}"
-CLUSTER_NAME=$(<"${SHARED_DIR}/cluster_name")
-BASE_DOMAIN=$(<"${CLUSTER_PROFILE_DIR}/base_domain")
+echo "Shared dir is ${SHARED_DIR} and cluster profile dir is ${CLUSTER_PROFILE_DIR}"
 
-echo "Cluster name and Base Domain is ${CLUSTER_NAME} ${BASE_DOMAIN}"
+SHARED_DIR_FILES=$(ls ${SHARED_DIR})
+CLUSTER_PROFILE_DIR_FILES=$(ls ${CLUSTER_PROFILE_DIR})
+echo "Contents of shared dir are ${SHARED_DIR_FILES}"
+echo "Contents of cluster profile are ${CLUSTER_PROFILE_DIR_FILES}"
+#CLUSTER_NAME=$(<"${SHARED_DIR}/cluster_name")
+#BASE_DOMAIN=$(<"${CLUSTER_PROFILE_DIR}/base_domain")
+
+#echo "Cluster name and Base Domain is ${CLUSTER_NAME} ${BASE_DOMAIN}"
 
 function approve_csrs() {
   while [[ ! -f '/tmp/scale-out-complete' ]]; do
@@ -70,7 +76,9 @@ case "$CLUSTER_TYPE" in
       IBMCLOUD_HOME_FOLDER=/tmp/ibmcloud
       SERVICE_NAME=power-iaas
       SERVICE_PLAN_NAME=power-virtual-server-group
-      WORKSPACE_NAME=rdr-mac-osa-n1
+      WORKSPACE_NAME=rdr-mac-$REGION-n1 # TODO: Should this be an env variable or some randomly generated name based on the zone?
+      OPENSHIFT_CLIENT_TARBALL=""
+
       mkdir -p ${IBMCLOUD_HOME_FOLDER}
       if [ -z "$(command -v ibmcloud)" ]; then
         echo "ibmcloud CLI doesn't exist, installing"
@@ -87,17 +95,42 @@ case "$CLUSTER_TYPE" in
 
       # create workspace for power from cli
       echo "Display all the variable values"
-      echo "Region is ${REGION} Resource Group is ${RESOURCE_GROUP}" #TODO: rename to RESOURCE_GROUP
-      ic resource service-instance-create "${WORKSPACE_NAME}" "${SERVICE_NAME}" "${SERVICE_PLAN_NAME}" "${REGION}" -g "${RESOURCE_GROUP}"
+      echo "Region is ${REGION} Zone is ${ZONE} Resource Group is ${RESOURCE_GROUP}" #TODO: rename to RESOURCE_GROUP
+      SERVICE_INSTANCE_OUTPUT=$(ic resource service-instance-create "${WORKSPACE_NAME}" "${SERVICE_NAME}" "${SERVICE_PLAN_NAME}" "${REGION}" -g "${RESOURCE_GROUP}")
 
+      SERVICE_INSTANCE_ID=$(echo "$SERVICE_INSTANCE_OUTPUT" | grep -oE 'GUID:[[:space:]]+[^:[:space:]]+' | awk '{print $2}')
+
+      echo ${SERVICE_INSTANCE_ID}
       # After the workspace is created, invoke the automation code
-      cd ${IBMCLOUD_HOME_FOLDER} && git clone -b main https://github.com/IBM/ocp4-upi-compute-powervs.git
+      cd ${IBMCLOUD_HOME_FOLDER} && git clone -b release-${OCP_VERSION} https://github.com/IBM/ocp4-upi-compute-powervs.git
 
       # Check if the terraform is of required version
 
       # Populate the values in vars.tfvars
+      IC_API_KEY="$(< "${CLUSTER_PROFILE_DIR}/ibmcloud-api-key")"
 
+      # TODO: Should ssh keys ideally be copied from some secrets?
+      # copy public and private key files to the data directory
+      SSH_PRIV_KEY_PATH=${CLUSTER_PROFILE_DIR}/ssh-privatekey
+      SSH_PUB_KEY_PATH=${CLUSTER_PROFILE_DIR}/ssh-publickey
+      cp ${SSH_PUB_KEY_PATH} ${IBMCLOUD_HOME_FOLDER}/ocp4-upi-compute-powervs/data/compute_id_rsa.pub
+      cp ${SSH_PRIV_KEY_PATH} ${IBMCLOUD_HOME_FOLDER}/ocp4-upi-compute-powervs/data/compute_id_rsa
 
+      sed -i -e "s/\(vpc_name.*=\).*/\1$ZONE/" \
+      -e "s/\(vpc_region.*=\).*/\1$REGION/" \
+      -e "s/\(vpc_zone.*=\).*/\1$ZONE/" \
+      -e "s/\(ibmcloud_api_key.*=\).*/\1$IC_API_KEY/" \
+      -e "s/\(powervs_service_instance_id.*=\).*/\1$SERVICE_INSTANCE_ID/" \
+      -e "s/\(powervs_region.*=\).*/\1$REGION/" \
+      -e "s/\(powervs_zone.*=\).*/\1$ZONE/" \
+      -e "s/\(openshift_client_tarball.*=\).*/\1$OPENSHIFT_CLIENT_TARBALL/" ${IBMCLOUD_HOME_FOLDER}/ocp4-upi-compute-powervs/var.tfvars
+
+      VARFILE_OUTPUT=$(cat ${IBMCLOUD_HOME_FOLDER}/ocp4-upi-compute-powervs/var.tfvars)
+      echo "varfile_output is ${VARFILE_OUTPUT}"
+      # save the var.tfvars file to a temporary location so that it can be used to destroy the created resources. once the destroy is completed, the file can be deleted from the temporary location
+      #cd ${IBMCLOUD_HOME_FOLDER}/ocp4-upi-compute-powervs && terraform init -upgrade && terraform plan -var-file=var.tfvars && terraform apply -var-file=var.tfvars
+      #TODO: get the output of apply command to know if the deploy completed successfully
+      
   fi
 ;;
 *)
