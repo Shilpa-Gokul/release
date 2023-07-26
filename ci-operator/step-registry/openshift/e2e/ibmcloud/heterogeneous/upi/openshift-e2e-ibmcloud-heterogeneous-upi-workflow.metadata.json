@@ -2,13 +2,15 @@
 	"path": "openshift/e2e/ibmcloud/heterogeneous/upi/openshift-e2e-ibmcloud-heterogeneous-upi-workflow.yaml",
 	"owners": {
 		"approvers": [
-			"sgokul",
+			"Shilpa-Gokul",
+			"werled",
 			"jaypoulz",
 			"tvardema",
 			"Prashanth684"
 		],
 		"reviewers": [
-			"sgokul",
+			"Shilpa-Gokul",
+			"werled",
 			"jaypoulz",
 			"tvardema",
 			"Prashanth684"
