@@ -109,6 +109,9 @@ case "$CLUSTER_TYPE" in
       # After the workspace is created, invoke the automation code
       cd ${IBMCLOUD_HOME_FOLDER} && git clone -b release-${OCP_VERSION} https://github.com/IBM/ocp4-upi-compute-powervs.git
 
+      echo "Creating the Centos Stream Image"
+      sh ocp4-upi-compute-powervs/scripts/import-centos.sh 
+
       # Set the values to be used for generating var.tfvars
       IC_API_KEY="$(< "${CLUSTER_PROFILE_DIR}/ibmcloud-api-key")"
       export IC_API_KEY
