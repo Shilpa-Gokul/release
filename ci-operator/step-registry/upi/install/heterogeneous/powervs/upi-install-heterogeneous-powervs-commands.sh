@@ -15,17 +15,12 @@ if [ "${ADDITIONAL_WORKERS_DAY2}" != "true" ]; then
     exit 0
 fi
 
-echo "Additional worker vm type is ${ADDITIONAL_WORKER_VM_TYPE}"
 echo "Shared dir is ${SHARED_DIR} and cluster profile dir is ${CLUSTER_PROFILE_DIR}"
 
 SHARED_DIR_FILES=$(ls ${SHARED_DIR})
 CLUSTER_PROFILE_DIR_FILES=$(ls ${CLUSTER_PROFILE_DIR})
 echo "Contents of shared dir are ${SHARED_DIR_FILES}"
 echo "Contents of cluster profile are ${CLUSTER_PROFILE_DIR_FILES}"
-#CLUSTER_NAME=$(<"${SHARED_DIR}/cluster_name")
-#BASE_DOMAIN=$(<"${CLUSTER_PROFILE_DIR}/base_domain")
-
-#echo "Cluster name and Base Domain is ${CLUSTER_NAME} ${BASE_DOMAIN}"
 
 function approve_csrs() {
   while [[ ! -f '/tmp/scale-out-complete' ]]; do
@@ -73,11 +68,11 @@ case "$CLUSTER_TYPE" in
   # Add code for ppc64le
   if [ "${ADDITIONAL_WORKER_ARCHITECTURE}" == "ppc64le" ]; then
       echo "Adding additional ppc64le nodes"
+      REGION="${LEASED_RESOURCE}"
       IBMCLOUD_HOME_FOLDER=/tmp/ibmcloud
       SERVICE_NAME=power-iaas
       SERVICE_PLAN_NAME=power-virtual-server-group
-      WORKSPACE_NAME=rdr-mac-$REGION-n1 # TODO: Should this be an env variable or some randomly generated name based on the zone?
-      OPENSHIFT_CLIENT_TARBALL=""
+      WORKSPACE_NAME=rdr-mac-${REGION}-n1 # TODO: Should this be an env variable or some randomly generated name based on the zone?
 
       mkdir -p ${IBMCLOUD_HOME_FOLDER}
       if [ -z "$(command -v ibmcloud)" ]; then
@@ -89,13 +84,35 @@ case "$CLUSTER_TYPE" in
         HOME=${IBMCLOUD_HOME_FOLDER} ibmcloud "$@"
       }
 
+      # TODO: Check if jq,yq and openshift-install are installed
+      if [ -z "$(command -v yq)" ]; then
+      	echo "yq is not installed, proceed to installing yq"
+      	curl -L "https://github.com/mikefarah/yq/releases/download/v4.30.5/yq_linux_$(uname -m | sed 's/aarch64/arm64/;s/x86_64/amd64/')" \
+          -o /tmp/yq && chmod +x /tmp/yq
+      else
+        echo "yq is already installed"
+      fi
+
+      if [ -z "$(command -v jq)" ]; then
+        echo "jq is not installed, proceed to installing jq"
+      else
+        echo "jq is already installed"
+      fi
+
+      if [ -z "$(command -v openshift-install)" ]; then
+        echo "openshift-install is not installed, proceed to installing openshift-install"
+      else
+        echo "openshift-install is already installed"
+      fi
+      PATH=${PATH}:/tmp
+
       ic version
       ic login --apikey @${CLUSTER_PROFILE_DIR}/ibmcloud-api-key -r ${REGION}
       ic plugin install -f cloud-internet-services vpc-infrastructure cloud-object-storage power-iaas
 
       # create workspace for power from cli
       echo "Display all the variable values"
-      echo "Region is ${REGION} Zone is ${ZONE} Resource Group is ${RESOURCE_GROUP}" #TODO: rename to RESOURCE_GROUP
+      echo "Region is ${REGION} Resource Group is ${RESOURCE_GROUP}" #TODO: rename to RESOURCE_GROUP
       SERVICE_INSTANCE_OUTPUT=$(ic resource service-instance-create "${WORKSPACE_NAME}" "${SERVICE_NAME}" "${SERVICE_PLAN_NAME}" "${REGION}" -g "${RESOURCE_GROUP}")
 
       SERVICE_INSTANCE_ID=$(echo "$SERVICE_INSTANCE_OUTPUT" | grep -oE 'GUID:[[:space:]]+[^:[:space:]]+' | awk '{print $2}')
@@ -106,31 +123,26 @@ case "$CLUSTER_TYPE" in
 
       # Check if the terraform is of required version
 
-      # Populate the values in vars.tfvars
+      # Set the values to be used for generating var.tfvars
       IC_API_KEY="$(< "${CLUSTER_PROFILE_DIR}/ibmcloud-api-key")"
+      PRIVATE_KEY_FILE=${CLUSTER_PROFILE_DIR}/ssh-privatekey
+      PUBLIC_KEY_FILE=${CLUSTER_PROFILE_DIR}/ssh-publickey
+      POWERVS_SERVICE_INSTANCE_ID=${SERVICE_INSTANCE_ID}
+      INSTALL_CONFIG_FILE=${SHARED_DIR}/install-config.yaml
+      KUBECONFIG=${SHARED_DIR}/kubeconfig
 
-      # TODO: Should ssh keys ideally be copied from some secrets?
-      # copy public and private key files to the data directory
-      SSH_PRIV_KEY_PATH=${CLUSTER_PROFILE_DIR}/ssh-privatekey
-      SSH_PUB_KEY_PATH=${CLUSTER_PROFILE_DIR}/ssh-publickey
-      cp ${SSH_PUB_KEY_PATH} ${IBMCLOUD_HOME_FOLDER}/ocp4-upi-compute-powervs/data/compute_id_rsa.pub
-      cp ${SSH_PRIV_KEY_PATH} ${IBMCLOUD_HOME_FOLDER}/ocp4-upi-compute-powervs/data/compute_id_rsa
+      # Invoke create_var_file.sh to generate var.tfvars file
+      cd ${IBMCLOUD_HOME_FOLDER}/ocp4-upi-compute-powervs/scripts && chmod a+x create-var-file.sh && ./create-var-file.sh
 
-      sed -i -e "s/\(vpc_name.*=\).*/\1$ZONE/" \
-      -e "s/\(vpc_region.*=\).*/\1$REGION/" \
-      -e "s/\(vpc_zone.*=\).*/\1$ZONE/" \
-      -e "s/\(ibmcloud_api_key.*=\).*/\1$IC_API_KEY/" \
-      -e "s/\(powervs_service_instance_id.*=\).*/\1$SERVICE_INSTANCE_ID/" \
-      -e "s/\(powervs_region.*=\).*/\1$REGION/" \
-      -e "s/\(powervs_zone.*=\).*/\1$ZONE/" \
-      -e "s/\(openshift_client_tarball.*=\).*/\1$OPENSHIFT_CLIENT_TARBALL/" ${IBMCLOUD_HOME_FOLDER}/ocp4-upi-compute-powervs/var.tfvars
-
+      # TODO: check if the var.tfvars file is populated
       VARFILE_OUTPUT=$(cat ${IBMCLOUD_HOME_FOLDER}/ocp4-upi-compute-powervs/var.tfvars)
       echo "varfile_output is ${VARFILE_OUTPUT}"
-      # save the var.tfvars file to a temporary location so that it can be used to destroy the created resources. once the destroy is completed, the file can be deleted from the temporary location
-      #cd ${IBMCLOUD_HOME_FOLDER}/ocp4-upi-compute-powervs && terraform init -upgrade && terraform plan -var-file=var.tfvars && terraform apply -var-file=var.tfvars
-      #TODO: get the output of apply command to know if the deploy completed successfully
-      
+
+      # copy the var.tfvars file and the POWERVS_SERVICE_INSTANCE_ID to ${SHARED_DIR} so that it can be used to destroy the created resources.
+      cp ${IBMCLOUD_HOME_FOLDER}/ocp4-upi-compute-powervs/var.tfvars ${SHARED_DIR}/var.tfvars
+      echo ${POWERVS_SERVICE_INSTANCE_ID} > ${SHARED_DIR}/POWERVS_SERVICE_INSTANCE_ID
+      cat ${SHARED_DIR}/POWERVS_SERVICE_INSTANCE_ID
+      cd ${IBMCLOUD_HOME_FOLDER}/ocp4-upi-compute-powervs && terraform init -upgrade && terraform plan -var-file=var.tfvars && terraform apply -var-file=var.tfvars
   fi
 ;;
 *)

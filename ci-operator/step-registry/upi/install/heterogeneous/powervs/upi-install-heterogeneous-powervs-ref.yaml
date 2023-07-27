@@ -17,9 +17,6 @@ ref:
   - name: ADDITIONAL_WORKER_ARCHITECTURE
     default: "ppc64le"
     documentation: "Heterogeneous worker architecture, default set to ppc64le"
-  - name: ADDITIONAL_WORKER_VM_TYPE
-    default: "Standard_D4ps_v5"
-    documentation: "VM Instance type for Heterogeneous PowerVS worker, default set to Standard_D4ps_v5"
   - name: OCP_VERSION
     default: "4.14"
     documentation: "OCP VERSION, default set to 4.14"
