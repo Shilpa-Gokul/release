@@ -109,7 +109,8 @@ case "$CLUSTER_TYPE" in
       cd ${IBMCLOUD_HOME_FOLDER} && git clone -b release-${OCP_VERSION} https://github.com/IBM/ocp4-upi-compute-powervs.git
 
       # Set the values to be used for generating var.tfvars
-      export IC_API_KEY="$(< "${CLUSTER_PROFILE_DIR}/ibmcloud-api-key")"
+      IC_API_KEY="$(< "${CLUSTER_PROFILE_DIR}/ibmcloud-api-key")"
+      export IC_API_KEY
       export PRIVATE_KEY_FILE=${CLUSTER_PROFILE_DIR}/ssh-privatekey
       export PUBLIC_KEY_FILE=${CLUSTER_PROFILE_DIR}/ssh-publickey
       export POWERVS_SERVICE_INSTANCE_ID=${SERVICE_INSTANCE_ID}
