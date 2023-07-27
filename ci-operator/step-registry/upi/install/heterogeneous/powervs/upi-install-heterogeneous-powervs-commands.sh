@@ -60,6 +60,7 @@ case "$CLUSTER_TYPE" in
       SERVICE_PLAN_NAME=power-virtual-server-group
       WORKSPACE_NAME=rdr-mac-${REGION}-n1
 
+      PATH=${PATH}:/tmp
       mkdir -p ${IBMCLOUD_HOME_FOLDER}
       if [ -z "$(command -v ibmcloud)" ]; then
         echo "ibmcloud CLI doesn't exist, installing"
@@ -87,11 +88,11 @@ case "$CLUSTER_TYPE" in
       fi
 
       if [ -z "$(command -v openshift-install)" ]; then
-        echo "openshift-install is not installed, proceed to installing openshift-install" # TODO:MAC
+        echo "openshift-install is not installed, proceed to installing openshift-install"
+        curl -L https://mirror.openshift.com/pub/openshift-v4/multi/clients/ocp/stable/ppc64le/openshift-install-linux.tar.gz -o /tmp/openshift-install && chmod +x /tmp/openshift-install
       else
         echo "openshift-install is already installed"
       fi
-      PATH=${PATH}:/tmp
 
       ic version
       ic login --apikey @${CLUSTER_PROFILE_DIR}/ibmcloud-api-key -r ${REGION}
