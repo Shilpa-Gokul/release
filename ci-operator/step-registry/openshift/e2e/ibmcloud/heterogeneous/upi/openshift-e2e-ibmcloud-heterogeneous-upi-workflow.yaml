@@ -9,7 +9,7 @@ workflow:
     post:
     - chain: gather-core-dump
     - ref: gather-ibmcloud-resource
-    - ref: upi-deprovision-heterogeneous-powervs # TODO: Add code for this ref
+    - ref: upi-deprovision-heterogeneous-powervs
     - chain: ipi-ibmcloud-post
   documentation: |-
     The Openshift E2E HETEROGENEOUS IBM cloud workflow executes the

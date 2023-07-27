@@ -10,26 +10,12 @@ if [ "${ADDITIONAL_WORKERS}" == "0" ]; then
     exit 0
 fi
 
-if [ "${ADDITIONAL_WORKERS_DAY2}" != "true" ]; then
-    echo "Skipping as the additional nodes have been provisioned at installation time."
-    exit 0
-fi
-
 echo "Shared dir is ${SHARED_DIR} and cluster profile dir is ${CLUSTER_PROFILE_DIR}"
 
 SHARED_DIR_FILES=$(ls ${SHARED_DIR})
 CLUSTER_PROFILE_DIR_FILES=$(ls ${CLUSTER_PROFILE_DIR})
 echo "Contents of shared dir are ${SHARED_DIR_FILES}"
 echo "Contents of cluster profile are ${CLUSTER_PROFILE_DIR_FILES}"
-
-function approve_csrs() {
-  while [[ ! -f '/tmp/scale-out-complete' ]]; do
-    sleep 30
-    echo "approve_csrs() running..."
-    oc get csr -o go-template='{{range .items}}{{if not .status}}{{.metadata.name}}{{"\n"}}{{end}}{{end}}' \
-      | xargs --no-run-if-empty oc adm certificate approve || true
-  done
-}
 
 function get_ready_nodes_count() {
   oc get nodes \
@@ -72,7 +58,7 @@ case "$CLUSTER_TYPE" in
       IBMCLOUD_HOME_FOLDER=/tmp/ibmcloud
       SERVICE_NAME=power-iaas
       SERVICE_PLAN_NAME=power-virtual-server-group
-      WORKSPACE_NAME=rdr-mac-${REGION}-n1 # TODO: Should this be an env variable or some randomly generated name based on the zone?
+      WORKSPACE_NAME=rdr-mac-${REGION}-n1
 
       mkdir -p ${IBMCLOUD_HOME_FOLDER}
       if [ -z "$(command -v ibmcloud)" ]; then
@@ -84,7 +70,7 @@ case "$CLUSTER_TYPE" in
         HOME=${IBMCLOUD_HOME_FOLDER} ibmcloud "$@"
       }
 
-      # TODO: Check if jq,yq and openshift-install are installed
+      # Check if jq,yq and openshift-install are installed
       if [ -z "$(command -v yq)" ]; then
       	echo "yq is not installed, proceed to installing yq"
       	curl -L "https://github.com/mikefarah/yq/releases/download/v4.30.5/yq_linux_$(uname -m | sed 's/aarch64/arm64/;s/x86_64/amd64/')" \
@@ -95,12 +81,13 @@ case "$CLUSTER_TYPE" in
 
       if [ -z "$(command -v jq)" ]; then
         echo "jq is not installed, proceed to installing jq"
+        curl -L "https://github.com/jqlang/jq/releases/download/jq-1.6/jq-linux64" -o /tmp/jq && chmod +x /tmp/jq
       else
         echo "jq is already installed"
       fi
 
       if [ -z "$(command -v openshift-install)" ]; then
-        echo "openshift-install is not installed, proceed to installing openshift-install"
+        echo "openshift-install is not installed, proceed to installing openshift-install" # TODO:MAC
       else
         echo "openshift-install is already installed"
       fi
@@ -112,7 +99,7 @@ case "$CLUSTER_TYPE" in
 
       # create workspace for power from cli
       echo "Display all the variable values"
-      echo "Region is ${REGION} Resource Group is ${RESOURCE_GROUP}" #TODO: rename to RESOURCE_GROUP
+      echo "Region is ${REGION} Resource Group is ${RESOURCE_GROUP}"
       SERVICE_INSTANCE_OUTPUT=$(ic resource service-instance-create "${WORKSPACE_NAME}" "${SERVICE_NAME}" "${SERVICE_PLAN_NAME}" "${REGION}" -g "${RESOURCE_GROUP}")
 
       SERVICE_INSTANCE_ID=$(echo "$SERVICE_INSTANCE_OUTPUT" | grep -oE 'GUID:[[:space:]]+[^:[:space:]]+' | awk '{print $2}')
@@ -121,20 +108,18 @@ case "$CLUSTER_TYPE" in
       # After the workspace is created, invoke the automation code
       cd ${IBMCLOUD_HOME_FOLDER} && git clone -b release-${OCP_VERSION} https://github.com/IBM/ocp4-upi-compute-powervs.git
 
-      # Check if the terraform is of required version
-
       # Set the values to be used for generating var.tfvars
-      IC_API_KEY="$(< "${CLUSTER_PROFILE_DIR}/ibmcloud-api-key")"
-      PRIVATE_KEY_FILE=${CLUSTER_PROFILE_DIR}/ssh-privatekey
-      PUBLIC_KEY_FILE=${CLUSTER_PROFILE_DIR}/ssh-publickey
-      POWERVS_SERVICE_INSTANCE_ID=${SERVICE_INSTANCE_ID}
-      INSTALL_CONFIG_FILE=${SHARED_DIR}/install-config.yaml
-      KUBECONFIG=${SHARED_DIR}/kubeconfig
+      export IC_API_KEY="$(< "${CLUSTER_PROFILE_DIR}/ibmcloud-api-key")"
+      export PRIVATE_KEY_FILE=${CLUSTER_PROFILE_DIR}/ssh-privatekey
+      export PUBLIC_KEY_FILE=${CLUSTER_PROFILE_DIR}/ssh-publickey
+      export POWERVS_SERVICE_INSTANCE_ID=${SERVICE_INSTANCE_ID}
+      export INSTALL_CONFIG_FILE=${SHARED_DIR}/install-config.yaml
+      export KUBECONFIG=${SHARED_DIR}/kubeconfig
 
       # Invoke create_var_file.sh to generate var.tfvars file
       cd ${IBMCLOUD_HOME_FOLDER}/ocp4-upi-compute-powervs/scripts && chmod a+x create-var-file.sh && ./create-var-file.sh
 
-      # TODO: check if the var.tfvars file is populated
+      # TODO:MAC check if the var.tfvars file is populated
       VARFILE_OUTPUT=$(cat ${IBMCLOUD_HOME_FOLDER}/ocp4-upi-compute-powervs/var.tfvars)
       echo "varfile_output is ${VARFILE_OUTPUT}"
 
@@ -151,18 +136,11 @@ case "$CLUSTER_TYPE" in
 esac
 
 echo "Wait for the nodes to become ready..."
-approve_csrs &
 wait_for_nodes_readiness ${EXPECTED_NODES}
 ret="$?"
 if [ "${ret}" != "0" ]; then
   echo "Some errors occurred, exiting with ${ret}."
   exit "${ret}"
-fi
-# let the approve_csr function finish
-touch /tmp/scale-out-complete
-if [ -z "${SCALE_IN_ARCHITECTURES}" ]; then
-  echo "No scale-in architectures specified. Continuing..."
-  exit 0
 fi
 
 exit 0

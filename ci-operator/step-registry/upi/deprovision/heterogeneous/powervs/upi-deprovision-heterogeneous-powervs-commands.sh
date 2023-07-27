@@ -23,7 +23,7 @@ then
     }
     # TODO: Delete the workspace created
     SERVICE_ID=$(cat ${SHARED_DIR}/POWERVS_SERVICE_INSTANCE_ID)
-    ic resource service-instance-delete ${SERVICE_ID} -g {RESOURCE_GROUP} --force --recursive
+    ic resource service-instance-delete ${SERVICE_ID} -g ${RESOURCE_GROUP} --force --recursive
 else
     echo "Error: File ${SHARED_DIR}/var.tfvars does not exists."
 fi
