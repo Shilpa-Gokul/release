@@ -1,11 +1,11 @@
 presubmits:
   openshift-knative/eventing:
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-v1\.15$
     - ^release-v1\.15-
-    cluster: build11
+    cluster: build07
     context: ci/prow/413-images
     decorate: true
     decoration_config:
@@ -59,7 +59,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )413-images,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-v1\.15$
     - ^release-v1\.15-
@@ -136,7 +136,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )413-test-conformance,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-v1\.15$
     - ^release-v1\.15-
@@ -213,7 +213,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )413-test-e2e,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-v1\.15$
     - ^release-v1\.15-
@@ -290,7 +290,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )413-test-encryption-auth-e2e,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-v1\.15$
     - ^release-v1\.15-
@@ -371,17 +371,17 @@ presubmits:
     branches:
     - ^release-v1\.15$
     - ^release-v1\.15-
-    cluster: build11
-    context: ci/prow/417-images
+    cluster: build07
+    context: ci/prow/418-images
     decorate: true
     decoration_config:
       skip_cloning: true
     labels:
-      ci-operator.openshift.io/variant: "417"
+      ci-operator.openshift.io/variant: "418"
       ci.openshift.io/generator: prowgen
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
-    name: pull-ci-openshift-knative-eventing-release-v1.15-417-images
-    rerun_command: /test 417-images
+    name: pull-ci-openshift-knative-eventing-release-v1.15-418-images
+    rerun_command: /test 418-images
     skip_if_only_changed: ^.tekton/.*|^.konflux.*|^.github/.*|^rpms.lock.yaml$|^hack/.*|^OWNERS.*|.*\.md
     spec:
       containers:
@@ -391,7 +391,7 @@ presubmits:
         - --report-credentials-file=/etc/report/credentials
         - --target=[images]
         - --target=src
-        - --variant=417
+        - --variant=418
         command:
         - ci-operator
         image: ci-operator:latest
@@ -424,25 +424,24 @@ presubmits:
       - name: result-aggregator
         secret:
           secretName: result-aggregator
-    trigger: (?m)^/test( | .* )417-images,?($|\s.*)
+    trigger: (?m)^/test( | .* )418-images,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-v1\.15$
     - ^release-v1\.15-
-    cluster: build11
-    context: ci/prow/417-test-conformance
+    cluster: build07
+    context: ci/prow/418-test-conformance
     decorate: true
     decoration_config:
       skip_cloning: true
       timeout: 5h0m0s
     labels:
-      ci-operator.openshift.io/variant: "417"
+      ci-operator.openshift.io/variant: "418"
       ci.openshift.io/generator: prowgen
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
-    name: pull-ci-openshift-knative-eventing-release-v1.15-417-test-conformance
-    rerun_command: /test 417-test-conformance
-    skip_if_only_changed: ^.tekton/.*|^.konflux.*|^.github/.*|^rpms.lock.yaml$|^hack/.*|^OWNERS.*|.*\.md
+    name: pull-ci-openshift-knative-eventing-release-v1.15-418-test-conformance
+    rerun_command: /test 418-test-conformance
     spec:
       containers:
       - args:
@@ -452,7 +451,7 @@ presubmits:
         - --report-credentials-file=/etc/report/credentials
         - --secret-dir=/secrets/ci-pull-credentials
         - --target=test-conformance
-        - --variant=417
+        - --variant=418
         command:
         - ci-operator
         image: ci-operator:latest
@@ -497,25 +496,24 @@ presubmits:
       - name: result-aggregator
         secret:
           secretName: result-aggregator
-    trigger: (?m)^/test( | .* )417-test-conformance,?($|\s.*)
+    trigger: (?m)^/test( | .* )418-test-conformance,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-v1\.15$
     - ^release-v1\.15-
-    cluster: build11
-    context: ci/prow/417-test-e2e
+    cluster: build07
+    context: ci/prow/418-test-e2e
     decorate: true
     decoration_config:
       skip_cloning: true
       timeout: 5h0m0s
     labels:
-      ci-operator.openshift.io/variant: "417"
+      ci-operator.openshift.io/variant: "418"
       ci.openshift.io/generator: prowgen
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
-    name: pull-ci-openshift-knative-eventing-release-v1.15-417-test-e2e
-    rerun_command: /test 417-test-e2e
-    skip_if_only_changed: ^.tekton/.*|^.konflux.*|^.github/.*|^rpms.lock.yaml$|^hack/.*|^OWNERS.*|.*\.md
+    name: pull-ci-openshift-knative-eventing-release-v1.15-418-test-e2e
+    rerun_command: /test 418-test-e2e
     spec:
       containers:
       - args:
@@ -525,7 +523,7 @@ presubmits:
         - --report-credentials-file=/etc/report/credentials
         - --secret-dir=/secrets/ci-pull-credentials
         - --target=test-e2e
-        - --variant=417
+        - --variant=418
         command:
         - ci-operator
         image: ci-operator:latest
@@ -570,25 +568,24 @@ presubmits:
       - name: result-aggregator
         secret:
           secretName: result-aggregator
-    trigger: (?m)^/test( | .* )417-test-e2e,?($|\s.*)
+    trigger: (?m)^/test( | .* )418-test-e2e,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-v1\.15$
     - ^release-v1\.15-
-    cluster: build11
-    context: ci/prow/417-test-encryption-auth-e2e
+    cluster: build07
+    context: ci/prow/418-test-encryption-auth-e2e
     decorate: true
     decoration_config:
       skip_cloning: true
       timeout: 5h0m0s
     labels:
-      ci-operator.openshift.io/variant: "417"
+      ci-operator.openshift.io/variant: "418"
       ci.openshift.io/generator: prowgen
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
-    name: pull-ci-openshift-knative-eventing-release-v1.15-417-test-encryption-auth-e2e
-    rerun_command: /test 417-test-encryption-auth-e2e
-    skip_if_only_changed: ^.tekton/.*|^.konflux.*|^.github/.*|^rpms.lock.yaml$|^hack/.*|^OWNERS.*|.*\.md
+    name: pull-ci-openshift-knative-eventing-release-v1.15-418-test-encryption-auth-e2e
+    rerun_command: /test 418-test-encryption-auth-e2e
     spec:
       containers:
       - args:
@@ -598,7 +595,7 @@ presubmits:
         - --report-credentials-file=/etc/report/credentials
         - --secret-dir=/secrets/ci-pull-credentials
         - --target=test-encryption-auth-e2e
-        - --variant=417
+        - --variant=418
         command:
         - ci-operator
         image: ci-operator:latest
@@ -643,25 +640,24 @@ presubmits:
       - name: result-aggregator
         secret:
           secretName: result-aggregator
-    trigger: (?m)^/test( | .* )417-test-encryption-auth-e2e,?($|\s.*)
+    trigger: (?m)^/test( | .* )418-test-encryption-auth-e2e,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-v1\.15$
     - ^release-v1\.15-
-    cluster: build11
-    context: ci/prow/417-test-reconciler
+    cluster: build07
+    context: ci/prow/418-test-reconciler
     decorate: true
     decoration_config:
       skip_cloning: true
       timeout: 5h0m0s
     labels:
-      ci-operator.openshift.io/variant: "417"
+      ci-operator.openshift.io/variant: "418"
       ci.openshift.io/generator: prowgen
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
-    name: pull-ci-openshift-knative-eventing-release-v1.15-417-test-reconciler
-    rerun_command: /test 417-test-reconciler
-    skip_if_only_changed: ^.tekton/.*|^.konflux.*|^.github/.*|^rpms.lock.yaml$|^hack/.*|^OWNERS.*|.*\.md
+    name: pull-ci-openshift-knative-eventing-release-v1.15-418-test-reconciler
+    rerun_command: /test 418-test-reconciler
     spec:
       containers:
       - args:
@@ -671,7 +667,7 @@ presubmits:
         - --report-credentials-file=/etc/report/credentials
         - --secret-dir=/secrets/ci-pull-credentials
         - --target=test-reconciler
-        - --variant=417
+        - --variant=418
         command:
         - ci-operator
         image: ci-operator:latest
@@ -716,4 +712,4 @@ presubmits:
       - name: result-aggregator
         secret:
           secretName: result-aggregator
-    trigger: (?m)^/test( | .* )417-test-reconciler,?($|\s.*)
+    trigger: (?m)^/test( | .* )418-test-reconciler,?($|\s.*)

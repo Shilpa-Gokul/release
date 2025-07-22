@@ -1,11 +1,11 @@
 presubmits:
   openshift-knative/serverless-operator:
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/413-images
     decorate: true
     decoration_config:
@@ -59,7 +59,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )413-images,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -136,7 +136,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )413-kitchensink-e2e-aws-413,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -213,7 +213,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )413-kitchensink-upgrade-aws-413,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -291,7 +291,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )413-mesh-e2e-aws-413,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -368,7 +368,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )413-mesh-upgrade-aws-413,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -523,7 +523,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )413-test-soak-aws-413,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -677,7 +677,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )413-ui-e2e-aws-413,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -754,7 +754,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )413-upstream-e2e-aws-413,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -835,7 +835,7 @@ presubmits:
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-aws-ovn-images
     decorate: true
     decoration_config:
@@ -893,7 +893,7 @@ presubmits:
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-azure-images
     decorate: true
     decoration_config:
@@ -951,7 +951,7 @@ presubmits:
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-gcp-images
     decorate: true
     decoration_config:
@@ -1009,7 +1009,7 @@ presubmits:
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-hypershift-images
     decorate: true
     decoration_config:
@@ -1067,7 +1067,7 @@ presubmits:
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-images
     decorate: true
     decoration_config:
@@ -1122,11 +1122,11 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )417-images,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-kitchensink-e2e-aws-417
     decorate: true
     decoration_config:
@@ -1194,11 +1194,11 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )417-kitchensink-e2e-aws-417,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-kitchensink-upgrade-aws-417
     decorate: true
     decoration_config:
@@ -1266,11 +1266,11 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )417-kitchensink-upgrade-aws-417,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-mesh-e2e-aws-417
     decorate: true
     decoration_config:
@@ -1339,11 +1339,11 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )417-mesh-e2e-aws-417,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-mesh-upgrade-aws-417
     decorate: true
     decoration_config:
@@ -1411,11 +1411,11 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )417-mesh-upgrade-aws-417,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-operator-e2e-aws-417
     decorate: true
     decoration_config:
@@ -1426,7 +1426,6 @@ presubmits:
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
     name: pull-ci-openshift-knative-serverless-operator-release-1.35-417-operator-e2e-aws-417
     rerun_command: /test 417-operator-e2e-aws-417
-    skip_if_only_changed: ^.tekton/.*|^.konflux.*|^.github/.*|^rpms.lock.yaml$|^hack/.*|^OWNERS.*|.*\.md
     spec:
       containers:
       - args:
@@ -1487,7 +1486,7 @@ presubmits:
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-osd-images
     decorate: true
     decoration_config:
@@ -1545,7 +1544,7 @@ presubmits:
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-single-node-images
     decorate: true
     decoration_config:
@@ -1603,7 +1602,7 @@ presubmits:
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-test-soak-aws-417
     decorate: true
     decoration_config:
@@ -1673,11 +1672,11 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )417-test-soak-aws-417,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-test-upgrade-aws-417
     decorate: true
     decoration_config:
@@ -1688,7 +1687,6 @@ presubmits:
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
     name: pull-ci-openshift-knative-serverless-operator-release-1.35-417-test-upgrade-aws-417
     rerun_command: /test 417-test-upgrade-aws-417
-    skip_if_only_changed: ^.tekton/.*|^.konflux.*|^.github/.*|^rpms.lock.yaml$|^hack/.*|^OWNERS.*|.*\.md
     spec:
       containers:
       - args:
@@ -1749,7 +1747,7 @@ presubmits:
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-ui-e2e-aws-417
     decorate: true
     decoration_config:
@@ -1818,11 +1816,11 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )417-ui-e2e-aws-417,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-upstream-e2e-aws-417
     decorate: true
     decoration_config:
@@ -1834,7 +1832,6 @@ presubmits:
     name: pull-ci-openshift-knative-serverless-operator-release-1.35-417-upstream-e2e-aws-417
     optional: true
     rerun_command: /test 417-upstream-e2e-aws-417
-    skip_if_only_changed: ^.tekton/.*|^.konflux.*|^.github/.*|^rpms.lock.yaml$|^hack/.*|^OWNERS.*|.*\.md
     spec:
       containers:
       - args:
@@ -1891,11 +1888,11 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )417-upstream-e2e-aws-417,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/417-upstream-e2e-kafka-aws-417
     decorate: true
     decoration_config:
@@ -1907,7 +1904,6 @@ presubmits:
     name: pull-ci-openshift-knative-serverless-operator-release-1.35-417-upstream-e2e-kafka-aws-417
     optional: true
     rerun_command: /test 417-upstream-e2e-kafka-aws-417
-    skip_if_only_changed: ^.tekton/.*|^.konflux.*|^.github/.*|^rpms.lock.yaml$|^hack/.*|^OWNERS.*|.*\.md
     spec:
       containers:
       - args:
@@ -2026,7 +2022,7 @@ presubmits:
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/418-images
     decorate: true
     decoration_config:
@@ -2038,6 +2034,7 @@ presubmits:
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
     name: pull-ci-openshift-knative-serverless-operator-release-1.35-418-images
     rerun_command: /test 418-images
+    skip_if_only_changed: ^.tekton/.*|^.konflux.*|^.github/.*|^rpms.lock.yaml$|^hack/.*|^OWNERS.*|.*\.md
     spec:
       containers:
       - args:
@@ -2080,7 +2077,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )418-images,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -2158,7 +2155,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )418-kitchensink-e2e-aws-418,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -2236,7 +2233,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )418-kitchensink-upgrade-aws-418,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -2315,7 +2312,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )418-mesh-e2e-aws-418,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -2393,7 +2390,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )418-mesh-upgrade-aws-418,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -2550,7 +2547,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )418-test-soak-aws-418,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -2706,7 +2703,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )418-ui-e2e-aws-418,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -2784,7 +2781,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )418-upstream-e2e-aws-418,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
@@ -2866,7 +2863,7 @@ presubmits:
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/ocp4.17-lp-rosa-classic-images
     decorate: true
     decoration_config:
@@ -2924,7 +2921,7 @@ presubmits:
     branches:
     - ^release-1\.35$
     - ^release-1\.35-
-    cluster: build03
+    cluster: build07
     context: ci/prow/ocp4.18-lp-interop-images
     decorate: true
     decoration_config:

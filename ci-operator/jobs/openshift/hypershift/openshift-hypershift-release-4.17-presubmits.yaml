@@ -5,7 +5,7 @@ presubmits:
     branches:
     - ^release-4\.17$
     - ^release-4\.17-
-    cluster: build09
+    cluster: build03
     context: ci/prow/e2e-aws
     decorate: true
     labels:
@@ -74,11 +74,11 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )e2e-aws,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-4\.17$
     - ^release-4\.17-
-    cluster: build09
+    cluster: build03
     context: ci/prow/e2e-aws-metrics
     decorate: true
     labels:
@@ -147,11 +147,11 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )e2e-aws-metrics,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-4\.17$
     - ^release-4\.17-
-    cluster: build09
+    cluster: build03
     context: ci/prow/e2e-conformance
     decorate: true
     labels:
@@ -220,7 +220,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )e2e-conformance,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-4\.17$
     - ^release-4\.17-
@@ -229,7 +229,7 @@ presubmits:
     decorate: true
     labels:
       ci-operator.openshift.io/cloud: aws
-      ci-operator.openshift.io/cloud-cluster-profile: aws
+      ci-operator.openshift.io/cloud-cluster-profile: aws-2
       ci.openshift.io/generator: prowgen
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
     name: pull-ci-openshift-hypershift-release-4.17-e2e-kubevirt-aws-ovn
@@ -366,11 +366,11 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )e2e-kubevirt-aws-ovn-reduced,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-4\.17$
     - ^release-4\.17-
-    cluster: build09
+    cluster: build03
     context: ci/prow/e2e-kubevirt-azure-ovn
     decorate: true
     labels:
@@ -439,7 +439,7 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )e2e-kubevirt-azure-ovn,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-4\.17$
     - ^release-4\.17-
@@ -516,7 +516,7 @@ presubmits:
     branches:
     - ^release-4\.17$
     - ^release-4\.17-
-    cluster: build09
+    cluster: build03
     context: ci/prow/images
     decorate: true
     labels:
@@ -570,7 +570,7 @@ presubmits:
     branches:
     - ^release-4\.17$
     - ^release-4\.17-
-    cluster: build09
+    cluster: build03
     context: ci/prow/mce-images
     decorate: true
     decoration_config:
@@ -623,11 +623,11 @@ presubmits:
           secretName: result-aggregator
     trigger: (?m)^/test( | .* )mce-images,?($|\s.*)
   - agent: kubernetes
-    always_run: false
+    always_run: true
     branches:
     - ^release-4\.17$
     - ^release-4\.17-
-    cluster: build09
+    cluster: build03
     context: ci/prow/okd-scos-images
     decorate: true
     decoration_config:
@@ -637,7 +637,6 @@ presubmits:
       ci.openshift.io/generator: prowgen
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
     name: pull-ci-openshift-hypershift-release-4.17-okd-scos-images
-    optional: true
     rerun_command: /test okd-scos-images
     spec:
       containers:
@@ -686,7 +685,7 @@ presubmits:
     branches:
     - ^release-4\.17$
     - ^release-4\.17-
-    cluster: build09
+    cluster: build03
     context: ci/prow/security
     decorate: true
     labels:
@@ -747,7 +746,7 @@ presubmits:
     branches:
     - ^release-4\.17$
     - ^release-4\.17-
-    cluster: build09
+    cluster: build03
     context: ci/prow/unit
     decorate: true
     labels:
@@ -801,7 +800,7 @@ presubmits:
     branches:
     - ^release-4\.17$
     - ^release-4\.17-
-    cluster: build09
+    cluster: build03
     context: ci/prow/verify
     decorate: true
     labels:

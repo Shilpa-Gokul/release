@@ -212,7 +212,7 @@ tests:
 - as: ocp-e2e-serial-aws-ovn-heterogeneous
   cron: 19 23 * * 2
   steps:
-    cluster_profile: aws
+    cluster_profile: aws-2
     dependencies:
       OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE: release:multi-latest
     env:
@@ -237,7 +237,7 @@ tests:
 - as: ocp-installer-e2e-aws-ovn-arm64
   interval: 24h
   steps:
-    cluster_profile: aws
+    cluster_profile: aws-2
     dependencies:
       OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE: release:arm64-latest
     env:
@@ -246,7 +246,7 @@ tests:
 - as: ocp-image-ecosystem-aws-ovn-arm64
   interval: 96h
   steps:
-    cluster_profile: aws
+    cluster_profile: aws-2
     dependencies:
       OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE: release:arm64-latest
     env:
@@ -255,7 +255,7 @@ tests:
 - as: ocp-jenkins-e2e-aws-ovn-arm64
   interval: 96h
   steps:
-    cluster_profile: aws
+    cluster_profile: aws-2
     dependencies:
       OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE: release:arm64-latest
     env:
@@ -274,7 +274,7 @@ tests:
 - as: ocp-e2e-aws-ovn-arm64
   interval: 72h
   steps:
-    cluster_profile: aws
+    cluster_profile: aws-2
     dependencies:
       OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE: release:arm64-latest
     env:
@@ -283,7 +283,7 @@ tests:
 - as: ocp-e2e-aws-upi-ovn-arm64
   interval: 72h
   steps:
-    cluster_profile: aws
+    cluster_profile: aws-3
     dependencies:
       OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE: release:arm64-latest
     env:
@@ -296,7 +296,7 @@ tests:
 - as: ocp-e2e-aws-ovn-arm64-single-node
   interval: 72h
   steps:
-    cluster_profile: aws
+    cluster_profile: aws-2
     dependencies:
       OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE: release:arm64-latest
     env:
@@ -305,7 +305,7 @@ tests:
 - as: ocp-e2e-aws-ovn-arm64-techpreview
   interval: 72h
   steps:
-    cluster_profile: aws
+    cluster_profile: aws-2
     dependencies:
       OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE: release:arm64-latest
     env:
@@ -316,7 +316,7 @@ tests:
 - as: ocp-e2e-aws-ovn-arm64-techpreview-serial
   interval: 72h
   steps:
-    cluster_profile: aws
+    cluster_profile: aws-3
     dependencies:
       OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE: release:arm64-latest
     env:
@@ -385,7 +385,7 @@ tests:
 - as: ocp-e2e-ovn-remote-libvirt-s390x
   capabilities:
   - sshd-bastion
-  cron: 0 3 * * 1-5
+  cron: 0 4 * * 1,3
   steps:
     cluster_profile: libvirt-s390x-2
     dependencies:
@@ -399,7 +399,7 @@ tests:
 - as: ocp-e2e-ovn-remote-libvirt-s390x-heterogeneous
   capabilities:
   - sshd-bastion
-  cron: 0 19 * * 1,4
+  cron: 0 4 * * 2,4
   steps:
     cluster_profile: libvirt-s390x-amd64
     dependencies:
@@ -414,7 +414,7 @@ tests:
 - as: ocp-heavy-build-ovn-remote-libvirt-s390x
   capabilities:
   - sshd-bastion
-  cron: 0 19 * * 3
+  cron: 0 5 * * 1,3
   steps:
     cluster_profile: libvirt-s390x-2
     dependencies:
@@ -500,7 +500,7 @@ tests:
 - as: ocp-e2e-ovn-remote-libvirt-ppc64le
   capabilities:
   - sshd-bastion
-  cron: 0 19 * * 1,4
+  cron: 0 4 * * 1,3
   steps:
     cluster_profile: libvirt-ppc64le
     dependencies:
@@ -515,7 +515,7 @@ tests:
 - as: ocp-heavy-build-ovn-remote-libvirt-ppc64le
   capabilities:
   - sshd-bastion
-  cron: 0 19 * * 3
+  cron: 0 5 * * 1,3
   steps:
     cluster_profile: libvirt-ppc64le
     dependencies:

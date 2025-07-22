@@ -1,4 +1,8 @@
 base_images:
+  cli:
+    name: "4.20"
+    namespace: ocp
+    tag: cli
   ocp_builder_rhel-9-base-openshift-4.19:
     name: builder
     namespace: ocp
@@ -7,6 +11,10 @@ base_images:
     name: builder
     namespace: ocp
     tag: rhel-9-golang-1.23-openshift-4.19
+  operator-sdk:
+    name: "4.17"
+    namespace: origin
+    tag: operator-sdk
 build_root:
   from_repository: true
 images:
@@ -24,6 +32,18 @@ images:
     RUN dnf install -y skopeo git && dnf clean all
   from: src
   to: kueue-operator-src
+- dockerfile_literal: |
+    FROM src
+    COPY oc /usr/bin/oc
+    RUN ln -s /usr/bin/oc /usr/bin/kubectl
+    RUN dnf install -y skopeo git && dnf clean all
+  from: src
+  inputs:
+    cli:
+      paths:
+      - destination_dir: .
+        source_path: /usr/bin/oc
+  to: src-with-oc-and-kubectl
 resources:
   '*':
     requests:
@@ -59,7 +79,7 @@ tests:
   skip_if_only_changed: ^\.tekton/|\.md$|^(LICENSE|OWNERS)$
   steps:
     workflow: openshift-ci-security
-- as: test-e2e
+- as: test-e2e-4-17
   cluster_claim:
     architecture: amd64
     cloud: aws
@@ -68,15 +88,42 @@ tests:
     timeout: 1h0m0s
     version: "4.17"
   steps:
+    post:
+    - chain: kueue-operator-post
     test:
-    - as: e2e-kueue
-      cli: latest
-      commands: make e2e-ci-test
-      from: kueue-operator-src
-      resources:
-        requests:
-          cpu: 300m
-          memory: 500Mi
+    - chain: kueue-operator-test-e2e
+- as: test-e2e-4-18
+  cluster_claim:
+    architecture: amd64
+    cloud: aws
+    owner: openshift-ci
+    product: ocp
+    timeout: 1h0m0s
+    version: "4.18"
+  minimum_interval: 96h
+  optional: true
+  presubmit: true
+  steps:
+    post:
+    - chain: kueue-operator-post
+    test:
+    - chain: kueue-operator-test-e2e
+- as: test-e2e-4-19
+  cluster_claim:
+    architecture: amd64
+    cloud: aws
+    owner: openshift-ci
+    product: ocp
+    timeout: 1h0m0s
+    version: "4.19"
+  minimum_interval: 96h
+  optional: true
+  presubmit: true
+  steps:
+    post:
+    - chain: kueue-operator-post
+    test:
+    - chain: kueue-operator-test-e2e
 zz_generated_metadata:
   branch: release-1.0
   org: openshift

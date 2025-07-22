@@ -57,13 +57,10 @@ base_images:
     tag: latest
 releases:
   latest:
-    prerelease:
+    release:
       architecture: amd64
-      product: ocp
-      version_bounds:
-        lower: 4.19.0-0
-        stream: 4-dev-preview
-        upper: 4.20.0-0
+      channel: candidate
+      version: "4.19"
   target:
     candidate:
       architecture: amd64
@@ -77,6 +74,8 @@ resources:
       memory: 200Mi
 tests:
 - as: aws-ipi-disc-priv-tp-pin-mco-f60
+  capabilities:
+  - intranet
   cron: 15 16 19 1,3,5,7,9,11 *
   steps:
     cluster_profile: aws-qe
@@ -90,6 +89,8 @@ tests:
     - chain: openshift-upgrade-qe-sanity-disconnected
     workflow: cucushift-installer-rehearse-aws-ipi-disconnected-private
 - as: aws-ipi-ocl-fips-f60
+  capabilities:
+  - intranet
   cron: 27 4 7 2,4,6,8,10,12 *
   steps:
     cluster_profile: aws-qe
@@ -104,6 +105,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-aws-ipi
 - as: aws-c2s-ipi-disc-priv-fips-f60
+  capabilities:
+  - intranet
   cron: 22 12 20 2,4,6,8,10,12 *
   steps:
     cluster_profile: aws-c2s-qe
@@ -114,35 +117,9 @@ tests:
     test:
     - chain: openshift-upgrade-qe-test-disconnected
     workflow: cucushift-installer-rehearse-aws-c2s-ipi-disconnected-private
-- as: aws-ipi-disc-priv-sts-basecap-none-f60
-  cron: 33 11 26 2,4,6,8,10,12 *
-  steps:
-    cluster_profile: aws-qe
-    env:
-      ADDITIONAL_ENABLED_CAPABILITIES: MachineAPI CloudCredential CloudControllerManager
-        Ingress
-      BASE_DOMAIN: qe.devcluster.openshift.com
-      BASELINE_CAPABILITY_SET: None
-      EXTRACT_MANIFEST_INCLUDED: "true"
-      PERSISTENT_MONITORING: "false"
-    test:
-    - chain: openshift-upgrade-qe-test-disconnected
-    workflow: cucushift-installer-rehearse-aws-ipi-disconnected-private-cco-manual-security-token-service
-- as: aws-ipi-disc-priv-sts-efs-mini-perm-f60
-  cron: 38 10 7 1,3,5,7,9,11 *
-  steps:
-    cluster_profile: aws-qe
-    dependency_overrides:
-      OO_INDEX: quay.io/openshift-qe-optional-operators/aosqe-index:v4.19
-    env:
-      AWS_CCOCTL_USE_MINIMAL_PERMISSIONS: "yes"
-      AWS_INSTALL_USE_MINIMAL_PERMISSIONS: "yes"
-      BASE_DOMAIN: qe.devcluster.openshift.com
-      EXTRACT_MANIFEST_INCLUDED: "true"
-    test:
-    - chain: openshift-upgrade-qe-test-disconnected
-    workflow: cucushift-installer-rehearse-aws-ipi-disconnected-private-cco-manual-security-token-service-efs
 - as: aws-ipi-disc-priv-sts-ep-fips-f60
+  capabilities:
+  - intranet
   cron: 15 2 7 1,3,5,7,9,11 *
   steps:
     cluster_profile: aws-qe
@@ -154,6 +131,8 @@ tests:
     - chain: openshift-upgrade-qe-test-disconnected
     workflow: cucushift-installer-rehearse-aws-ipi-disconnected-private-cco-manual-security-token-service-private-s3-with-ep-sts-ec2-elb
 - as: aws-ipi-efa-pg-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 4 10 30 1,3,5,7,9,11 *
   steps:
     cluster_profile: aws-1-qe
@@ -164,6 +143,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-aws-ipi-efa-pg
 - as: aws-ipi-localzone-byo-subnet-ovn-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 38 12 24 1,3,5,7,9,11 *
   steps:
     cluster_profile: aws-1-qe
@@ -173,7 +154,45 @@ tests:
     test:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-aws-ipi-edge-zone-byo-subnet-ovn
+- as: aws-ipi-localzone-byo-subnet-role-sts-kms-mini-perm-f60
+  capabilities:
+  - intranet
+  cron: 11 8 16 2,4,6,8,10,12 *
+  steps:
+    cluster_profile: aws-1-qe
+    env:
+      ASSIGN_ROLES_TO_SUBNETS: "yes"
+      AWS_CCOCTL_USE_MINIMAL_PERMISSIONS: "yes"
+      AWS_INSTALL_USE_MINIMAL_PERMISSIONS: "yes"
+      BASE_DOMAIN: qe.devcluster.openshift.com
+      SUBNET_ROLES: |-
+        [
+          [
+            {
+              "private": "ClusterNode ControlPlaneInternalLB",
+              "public": "IngressControllerLB ControlPlaneExternalLB BootstrapNode"
+            }
+          ],
+          [
+            {
+              "private": "ClusterNode ControlPlaneInternalLB",
+              "public": "IngressControllerLB ControlPlaneExternalLB"
+            }
+          ],
+          [
+            {
+              "private": "ClusterNode ControlPlaneInternalLB",
+              "public": "IngressControllerLB ControlPlaneExternalLB"
+            }
+          ]
+        ]
+      ZONES_COUNT: "3"
+    test:
+    - chain: openshift-upgrade-qe-test
+    workflow: cucushift-installer-rehearse-aws-ipi-edge-zone-byo-subnet-cco-manual-security-token-service-byo-kms
 - as: aws-ipi-localzone-fips-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 41 1 24 2,4,6,8,10,12 *
   steps:
     cluster_profile: aws-1-qe
@@ -184,18 +203,9 @@ tests:
     test:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-aws-ipi-edge-zone
-- as: aws-ipi-localzone-byo-subnet-sts-mini-perm-f60
-  cron: 56 2 30 2,4,6,8,10,12 *
-  steps:
-    cluster_profile: aws-1-qe
-    env:
-      AWS_CCOCTL_USE_MINIMAL_PERMISSIONS: "yes"
-      AWS_INSTALL_USE_MINIMAL_PERMISSIONS: "yes"
-      BASE_DOMAIN: qe.devcluster.openshift.com
-    test:
-    - chain: openshift-upgrade-qe-test
-    workflow: cucushift-installer-rehearse-aws-ipi-edge-zone-byo-subnet-cco-manual-security-token-service
 - as: aws-ipi-localzone-sts-fips-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 46 5 13 1,3,5,7,9,11 *
   steps:
     cluster_profile: aws-1-qe
@@ -208,6 +218,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-aws-ipi-edge-zone-cco-manual-security-token-service
 - as: aws-ipi-ovn-hypershift-mce-inplace-f60
+  capabilities:
+  - intranet
   cron: 39 19 5 1,3,5,7,9,11 *
   steps:
     cluster_profile: aws-qe
@@ -220,6 +232,8 @@ tests:
     - chain: openshift-upgrade-qe-test-hypershift
     workflow: cucushift-installer-rehearse-aws-ipi-ovn-hypershift-mce-guest
 - as: aws-ipi-ovn-hypershift-mce-replace-f60
+  capabilities:
+  - intranet
   cron: 27 3 4 2,4,6,8,10,12 *
   steps:
     cluster_profile: aws-qe
@@ -231,6 +245,8 @@ tests:
     - chain: openshift-upgrade-qe-test-hypershift
     workflow: cucushift-installer-rehearse-aws-ipi-ovn-hypershift-mce-guest
 - as: aws-ipi-private-shared-vpc-phz-sts-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 45 21 23 2,4,6,8,10,12 *
   steps:
     cluster_profile: aws-qe
@@ -243,6 +259,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-aws-ipi-private-shared-vpc-phz-sts
 - as: aws-ipi-shared-vpc-phz-freeipa-f60
+  capabilities:
+  - intranet
   cron: 23 5 15 2,4,6,8,10,12 *
   steps:
     cluster_profile: aws-qe
@@ -253,6 +271,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-aws-ipi-shared-vpc-phz
 - as: aws-ipi-shared-vpc-phz-sts-fips-openldap-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 36 12 28 1,3,5,7,9,11 *
   steps:
     cluster_profile: aws-qe
@@ -267,6 +287,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-aws-ipi-shared-vpc-phz-sts
 - as: aws-ipi-wavelength-byo-subnet-ovn-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 18 1 25 1,3,5,7,9,11 *
   steps:
     cluster_profile: aws-1-qe
@@ -277,7 +299,46 @@ tests:
     test:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-aws-ipi-edge-zone-byo-subnet-ovn
+- as: aws-ipi-wavelength-byo-subnet-role-sts-mini-perm-f60
+  capabilities:
+  - intranet
+  cron: 18 12 12 1,3,5,7,9,11 *
+  steps:
+    cluster_profile: aws-1-qe
+    env:
+      ASSIGN_ROLES_TO_SUBNETS: "yes"
+      AWS_CCOCTL_USE_MINIMAL_PERMISSIONS: "yes"
+      AWS_INSTALL_USE_MINIMAL_PERMISSIONS: "yes"
+      BASE_DOMAIN: qe.devcluster.openshift.com
+      EDGE_ZONE_TYPES: wavelength-zone
+      SUBNET_ROLES: |-
+        [
+          [
+            {
+              "private": "ClusterNode ControlPlaneInternalLB",
+              "public": "IngressControllerLB ControlPlaneExternalLB BootstrapNode"
+            }
+          ],
+          [
+            {
+              "private": "ClusterNode ControlPlaneInternalLB",
+              "public": "IngressControllerLB ControlPlaneExternalLB"
+            }
+          ],
+          [
+            {
+              "private": "ClusterNode ControlPlaneInternalLB",
+              "public": "IngressControllerLB ControlPlaneExternalLB"
+            }
+          ]
+        ]
+      ZONES_COUNT: "3"
+    test:
+    - chain: openshift-upgrade-qe-test
+    workflow: cucushift-installer-rehearse-aws-ipi-edge-zone-byo-subnet-cco-manual-security-token-service
 - as: aws-ipi-wavelength-fips-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 51 9 22 2,4,6,8,10,12 *
   steps:
     cluster_profile: aws-1-qe
@@ -289,19 +350,9 @@ tests:
     test:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-aws-ipi-edge-zone
-- as: aws-ipi-wavelength-byo-subnet-sts-mini-perm-f60
-  cron: 27 1 15 1,3,5,7,9,11 *
-  steps:
-    cluster_profile: aws-1-qe
-    env:
-      AWS_CCOCTL_USE_MINIMAL_PERMISSIONS: "yes"
-      AWS_INSTALL_USE_MINIMAL_PERMISSIONS: "yes"
-      BASE_DOMAIN: qe.devcluster.openshift.com
-      EDGE_ZONE_TYPES: wavelength-zone
-    test:
-    - chain: openshift-upgrade-qe-test
-    workflow: cucushift-installer-rehearse-aws-ipi-edge-zone-byo-subnet-cco-manual-security-token-service
 - as: aws-ipi-wavelength-sts-fips-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 26 0 26 2,4,6,8,10,12 *
   steps:
     cluster_profile: aws-1-qe
@@ -315,6 +366,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-aws-ipi-edge-zone-cco-manual-security-token-service
 - as: aws-ipi-workers-marketplace-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 53 18 15 2,4,6,8,10,12 *
   steps:
     cluster_profile: aws-qe
@@ -325,6 +378,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-aws-ipi-workers-marketplace
 - as: aws-sc2s-ipi-disc-priv-fips-f60
+  capabilities:
+  - intranet
   cron: 52 7 15 1,3,5,7,9,11 *
   steps:
     cluster_profile: aws-sc2s-qe
@@ -335,6 +390,8 @@ tests:
     - chain: openshift-upgrade-qe-test-disconnected
     workflow: cucushift-installer-rehearse-aws-sc2s-ipi-disconnected-private
 - as: aws-usgov-ipi-disc-priv-f60
+  capabilities:
+  - intranet
   cron: 40 22 21 1,3,5,7,9,11 *
   steps:
     cluster_profile: aws-usgov-qe
@@ -344,6 +401,8 @@ tests:
     - chain: openshift-upgrade-qe-test-disconnected
     workflow: cucushift-installer-rehearse-aws-usgov-ipi-disconnected-private
 - as: aws-usgov-ipi-private-ep-fips-f60
+  capabilities:
+  - intranet
   cron: 40 21 12 2,4,6,8,10,12 *
   steps:
     cluster_profile: aws-usgov-qe
@@ -354,6 +413,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-aws-usgov-ipi-private-with-ep-s3
 - as: aws-usgov-ipi-private-sts-f60
+  capabilities:
+  - intranet
   cron: 12 3 24 2,4,6,8,10,12 *
   steps:
     cluster_profile: aws-usgov-qe
@@ -364,6 +425,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-aws-usgov-ipi-private-cco-manual-security-token-service
 - as: aws-usgov-ipi-private-workers-marketplace-f60
+  capabilities:
+  - intranet
   cron: 4 18 4 2,4,6,8,10,12 *
   steps:
     cluster_profile: aws-usgov-qe
@@ -373,6 +436,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-aws-usgov-ipi-private-workers-marketplace
 - as: azure-aks-hypershift-byo-vnet-replace-guest-f28
+  capabilities:
+  - intranet
   cron: 25 21 5 * *
   steps:
     cluster_profile: azure-qe
@@ -382,6 +447,8 @@ tests:
     - chain: openshift-upgrade-qe-test-hypershift
     workflow: cucushift-installer-rehearse-azure-aks-hypershift-byo-vnet-guest
 - as: azure-ipi-confidentialvm-vmgueststateonly-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 15 19 24 2,4,6,8,10,12 *
   steps:
     cluster_profile: azure-qe
@@ -396,6 +463,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-azure-ipi-confidential-confidentialvm
 - as: azure-ipi-confidential-trustedlaunch-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 25 23 2 1,3,5,7,9,11 *
   steps:
     cluster_profile: azure-qe
@@ -408,6 +477,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-azure-ipi-confidential-trustedlaunch
 - as: azure-ipi-disc-oidc-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 11 15 3 2,4,6,8,10,12 *
   steps:
     cluster_profile: azure-qe
@@ -420,6 +491,8 @@ tests:
     - chain: openshift-upgrade-qe-test-disconnected
     workflow: cucushift-installer-rehearse-azure-ipi-disconnected-cco-manual-workload-identity
 - as: azure-ipi-marketplace-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 52 1 2 2,4,6,8,10,12 *
   steps:
     cluster_profile: azure-qe
@@ -431,6 +504,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-azure-ipi-marketplace
 - as: azure-ipi-vmgenv1-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 7 6 27 1,3,5,7,9,11 *
   steps:
     cluster_profile: azure-qe
@@ -444,6 +519,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-azure-ipi-generation
 - as: azure-mag-ipi-fips-f60
+  capabilities:
+  - intranet
   cron: 19 12 23 1,3,5,7,9,11 *
   steps:
     cluster_profile: azuremag-qe
@@ -454,6 +531,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-azure-mag-ipi
 - as: azure-mag-ipi-fullyprivate-f60
+  capabilities:
+  - intranet
   cron: 34 19 7 2,4,6,8,10,12 *
   steps:
     cluster_profile: azuremag-qe
@@ -463,6 +542,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-azure-mag-ipi-fullyprivate
 - as: azure-stack-ipi-f60
+  capabilities:
+  - intranet
   cluster: build01
   cron: 36 18 25 2,4,6,8,10,12 *
   steps:
@@ -473,6 +554,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-azure-stack-ipi
 - as: azure-stack-ipi-proxy-fips-f60
+  capabilities:
+  - intranet
   cluster: build01
   cron: 25 19 3 1,3,5,7,9,11 *
   steps:
@@ -484,6 +567,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-azure-stack-ipi-proxy
 - as: azure-stack-upi-f60
+  capabilities:
+  - intranet
   cluster: build01
   cron: 36 13 16 2,4,6,8,10,12 *
   steps:
@@ -642,6 +727,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: baremetal-lab-upi
 - as: gcp-ipi-disc-priv-oidc-fips-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 55 9 12 2,4,6,8,10,12 *
   steps:
     cluster_profile: gcp-qe
@@ -655,6 +742,8 @@ tests:
     - chain: openshift-upgrade-qe-test-disconnected
     workflow: cucushift-installer-rehearse-gcp-ipi-disconnected-private-cco-manual-workload-identity
 - as: gcp-ipi-marketplace-mini-perm-f60
+  capabilities:
+  - intranet
   cron: 33 17 10 2,4,6,8,10,12 *
   steps:
     cluster_profile: gcp-qe
@@ -669,6 +758,8 @@ tests:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-gcp-ipi
 - as: gcp-ipi-mini-perm-custom-type-f60
+  capabilities:
+  - intranet
   cron: 24 3 3 1,3,5,7,9,11 *
   steps:
     cluster_profile: gcp-qe
@@ -679,11 +770,19 @@ tests:
     test:
     - chain: openshift-upgrade-qe-test
     workflow: cucushift-installer-rehearse-gcp-ipi
-- as: gcp-ipi-secureboot-confidential-computing-mini-perm-f60
-  cron: 6 4 3 1,3,5,7,9,11 *
+- as: gcp-ipi-confidential-secureboot-fips-mini-perm-f60
+  capabilities:
+  - intranet
+  cron: 0 22 21 1,3,5,7,9,11 *
   steps:
     cluster_profile: gcp-qe
     env:
+      COMPUTE_CONFIDENTIAL_COMPUTE: AMDEncryptedVirtualizationNestedPaging
+      COMPUTE_NODE_TYPE: n2d-standard-2
+      COMPUTE_ON_HOST_MAINTENANCE: Terminate
+      CONFIDENTIAL_COMPUTE: AMDEncryptedVirtualization
+      CONTROL_PLANE_NODE_TYPE: c3d-standard-4
+      FIPS_ENABLED: "true"
       GCP_INSTALL_USE_MINIMAL_PERMISSIONS: "yes"
     test:
     - chain: openshift-upgrade-qe-test
@@ -799,7 +898,6 @@ tests:
   steps:
     cluster_profile: nutanix-qe-flow
     env:
-      ADDITIONAL_TRUST_BUNDLE_POLICY: Always
       EXTRACT_MANIFEST_INCLUDED: "true"
     test:
     - chain: openshift-upgrade-qe-test
